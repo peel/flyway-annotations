@@ -1,10 +1,13 @@
-package io.github.peel.flyway.annotations.migrators;
+package io.github.peel.migrations.migrators;
 
 import com.googlecode.flyway.core.Flyway;
 
 import javax.sql.DataSource;
 
-class FlywayMigrator implements DbMigrator {
+/**
+ * Backend API wrapper for FlyWayDB
+ */
+public class FlywayMigrator{
     private final String[] migrations;
     private final DataSource dataSource;
     private Flyway flyway = new Flyway();
@@ -14,7 +17,6 @@ class FlywayMigrator implements DbMigrator {
         this.dataSource = dataSource;
     }
 
-    @Override
     public FlywayMigrator set() {
         flyway = new Flyway();
         flyway.setLocations(migrations);
@@ -22,7 +24,7 @@ class FlywayMigrator implements DbMigrator {
         flyway.setDataSource(dataSource);
         return this;
     }
-    @Override
+
     public void migrate(){
         flyway.migrate();
     }

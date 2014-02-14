@@ -1,7 +1,7 @@
-package io.github.peel.flyway.annotations.migrators;
+package io.github.peel.migrations.migrators;
 
-import com.google.common.base.Optional;
-import io.github.peel.flyway.annotations.migrators.Migrator;
+import io.github.peel.migrations.api.annotations.Migrate;
+import io.github.peel.migrations.processors.MigrateAnnotationProcessor;
 import org.h2.jdbcx.JdbcDataSource;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -34,21 +34,21 @@ public class MigratorTest {
 
     @Test
     public void migratesClassesWithDataSource() throws SQLException {
-        MigratorStub migrator = new MigratorStub("io.github.peel.flyway.annotations.migrators.datasource_only");
+        MigratorStub migrator = new MigratorStub("io.github.peel.migrations.migrators.datasource_only");
         migrator.process();
         assertThat(verifyAccountSize(), Matchers.is(ACCOUNT_INSERT_NUMBER_NO_TEST));
     }
 
     @Test
     public void migratesClassesWithDataSourceAndLocations() throws SQLException {
-        MigratorStub migrator = new MigratorStub("io.github.peel.flyway.annotations.migrators.datasource_locations");
+        MigratorStub migrator = new MigratorStub("io.github.peel.migrations.migrators.datasource_locations");
         migrator.process();
         assertThat(verifyAccountSize(), Matchers.is(ACCOUNT_INSERT_NUMBER_W_TEST));
     }
 
     @Test
     public void invalidDatasourceValue() throws SQLException {
-        MigratorStub migrator = new MigratorStub("io.github.peel.flyway.annotations.migrators.invalid_datasource");
+        MigratorStub migrator = new MigratorStub("io.github.peel.migrations.migrators.invalid_datasource");
         migrator.process();
     }
 
@@ -65,12 +65,13 @@ public class MigratorTest {
         return ds.getConnection().createStatement().executeQuery(query);
     }
 
-    private class MigratorStub extends Migrator {
+    private class MigratorStub extends MigrateAnnotationProcessor {
         public MigratorStub(String path){
             super(path);
         }
-        protected Optional<DataSource> findDataSource(String jndi) {
-          return Optional.of((DataSource)ds);
+        protected DataSource getDataSource(Migrate migrate) {
+            return ds;
         }
     }
+
 }
