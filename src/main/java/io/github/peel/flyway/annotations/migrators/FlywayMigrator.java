@@ -9,15 +9,12 @@ class FlywayMigrator implements DbMigrator {
     private final DataSource dataSource;
     private Flyway flyway = new Flyway();
 
-    private FlywayMigrator(DataSource dataSource, String... migrations){
+    public FlywayMigrator(DataSource dataSource, String... migrations){
         this.migrations = migrations;
         this.dataSource = dataSource;
     }
 
-    public static FlywayMigrator of(DataSource dataSource, String... migrations){
-        return new FlywayMigrator(dataSource, migrations);
-    }
-
+    @Override
     public FlywayMigrator set() {
         flyway = new Flyway();
         flyway.setLocations(migrations);
@@ -25,6 +22,7 @@ class FlywayMigrator implements DbMigrator {
         flyway.setDataSource(dataSource);
         return this;
     }
+    @Override
     public void migrate(){
         flyway.migrate();
     }

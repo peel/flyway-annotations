@@ -11,7 +11,8 @@ import java.util.Set;
 
 public class Migrator {
     private static final String FAILED = "No database found to execute the db migrations";
-    private String[] migrations = {"db/migrations"};
+    private static final String[] DEFAULT_MIGRATIONS = {"db/migrations"};
+    private String[] migrations;
     private DataSource dataSource;
     private Reflections reflections;
 
@@ -25,6 +26,7 @@ public class Migrator {
             Migrate migrate = c.getAnnotation(Migrate.class);
             setMigrations(migrate);
             setDataSource(migrate);
+            migrate();
         }
     }
 
@@ -35,7 +37,6 @@ public class Migrator {
             Optional<DataSource> ds = findDataSource(jndi);
             if (ds.isPresent()) {
                 dataSource=ds.get();
-                migrate();
             }else{
                 throw new IllegalStateException(FAILED);
             }
@@ -48,6 +49,8 @@ public class Migrator {
         final Optional<String[]> migrations = Optional.fromNullable(migrate.migrations());
         if(migrations.isPresent()){
             this.migrations = migrations.get();
+        }else{
+            this.migrations = DEFAULT_MIGRATIONS;
         }
     }
 
@@ -70,7 +73,7 @@ public class Migrator {
     }
 
     private void migrate() {
-        FlywayMigrator.of(dataSource, migrations).set().migrate();
+        new FlywayMigrator(dataSource, migrations).set().migrate();
     }
 
 }
